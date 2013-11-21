@@ -91,13 +91,6 @@
             <input type="button" onclick="set_qual(2);" value="2"/>
             <output class="output" id="qual_output">1</output></p>
 
-            <p><span class="aligned">WebGL Acceleration:</span>
-            <input type="button" onclick="set_webglLevel(0);" value="Rotation"/>
-            <input type="button" onclick="set_webglLevel(1);" value="Layer 1 + Rotation"/>
-            <input type="button" onclick="set_webglLevel(2);" value="Layer 2 + Rotation"/>
-            <input type="button" onclick="set_webglLevel(3);" value="Everything"/>			
-            <output class="output" id="webglLevel_output">Rotation Only</output></p>
-			
             <p><span class="aligned">Image:</span>
             <input type="file" id="image_file" name="files[]"/>
             <input type="button" onclick="reset_image();" value="Reset"/>
@@ -116,15 +109,6 @@
 		 <input type="button" onclick="save_image();" value="Save Image"/>
 		 </p>
 		 <hr/>
-
-         <hr/>
-         <canvas id="other_canvas" style="border: none" width="256" height="224"></canvas><br/>
-         <hr/>
-
-         <h3>Logging</h3>
-         <h4>Error console</h4>
-         <textarea id="error_console" readonly cols="50" rows="10"></textarea>
- 
       </div>
    </body>
 

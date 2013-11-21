@@ -5,7 +5,7 @@ var gl = null;
 var texture_ = null;
 var texture_fbo = null;
 var fbo_ = null;
-var prog = null;
+var progRotate = null;
 // var prog2 = null;
 var vert_buf = null;
 // var vert_buf_fbo = null;
@@ -496,23 +496,23 @@ document.getElementById("image_file").addEventListener("change", load_image, fal
 
 //3rd function in webGLStart()
 function initShaders() {
-   prog = gl.createProgram();
-   prog.frag = getShader("Rotation_fragment_shader");
-   prog.vertex = getShader("Rotation_vertex_shader");
-   gl.attachShader(prog, prog.frag);
-   gl.attachShader(prog, prog.vertex);
-   gl.linkProgram(prog);
+   progRotate = gl.createProgram();
+   progRotate.frag = getShader("Rotation_fragment_shader");
+   progRotate.vertex = getShader("Rotation_vertex_shader");
+   gl.attachShader(progRotate, progRotate.frag);
+   gl.attachShader(progRotate, progRotate.vertex);
+   gl.linkProgram(progRotate);
 
-   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-      alert("Failed to init shader!");
+   if (!gl.getProgramParameter(progRotate, gl.LINK_STATUS)) {
+      alert("Failed to init rotation shader!");
    }
 
-   prog.vert_attr = gl.getAttribLocation(prog, "rubyVertex");
-   prog.tex_attr = gl.getAttribLocation(prog, "rubyTexCoord");
-   prog.matrixLoc = gl.getUniformLocation(prog, "uMatrix");
-   gl.enableVertexAttribArray(prog.vert_attr);
-   gl.enableVertexAttribArray(prog.tex_attr);
-   gl.uniform1i(gl.getUniformLocation(prog, "rubyTexture"), 0);
+   progRotate.vert_attr = gl.getAttribLocation(progRotate, "vertexCoord");
+   progRotate.tex_attr = gl.getAttribLocation(progRotate, "texCoord");
+   progRotate.matrixLoc = gl.getUniformLocation(progRotate, "uMatrix");
+   gl.enableVertexAttribArray(progRotate.vert_attr);
+   gl.enableVertexAttribArray(progRotate.tex_attr);
+   gl.uniform1i(gl.getUniformLocation(progRotate, "imageTexture"), 0);
 
    texture_ = gl.createTexture();
    texture_.image = new Image();
@@ -571,8 +571,8 @@ function initBuffers() {
 
    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(coords), gl.STATIC_DRAW);
 
-   gl.vertexAttribPointer(prog.tex_attr,  2, gl.FLOAT, false, 4 * coords.size, 0 * coords.size);
-   gl.vertexAttribPointer(prog.vert_attr, 2, gl.FLOAT, false, 4 * coords.size, 2 * coords.size);
+   gl.vertexAttribPointer(progRotate.tex_attr,  2, gl.FLOAT, false, 4 * coords.size, 0 * coords.size);
+   gl.vertexAttribPointer(progRotate.vert_attr, 2, gl.FLOAT, false, 4 * coords.size, 2 * coords.size);
 }
 
 function rotate(amount, width, height) {
@@ -611,14 +611,14 @@ function do_render_regular(rotation) {
 	gl.viewportWidth = canvas.width;
 	gl.viewportHeight = canvas.height;
 
-	gl.vertexAttribPointer(prog.tex_attr,  2, gl.FLOAT, false, 4 * 4, 0 * 4);
-	gl.vertexAttribPointer(prog.vert_attr, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
+	gl.vertexAttribPointer(progRotate.tex_attr,  2, gl.FLOAT, false, 4 * 4, 0 * 4);
+	gl.vertexAttribPointer(progRotate.vert_attr, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
 
 	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-	gl.uniform2f(gl.getUniformLocation(prog, "rubyTextureSize"), texture_.image.width, texture_.image.height);
-	gl.uniform2f(gl.getUniformLocation(prog, "rubyInputSize"), texture_.image.width, texture_.image.height);
-	gl.uniform2f(gl.getUniformLocation(prog, "rubyOutputSize"), gl.viewportWidth, gl.viewportHeight);
-	gl.uniformMatrix4fv(prog.matrixLoc, false, modelViewMatrix);
+	gl.uniform2f(gl.getUniformLocation(progRotate, "imageTextureSize"), texture_.image.width, texture_.image.height);
+	gl.uniform2f(gl.getUniformLocation(progRotate, "imageInputSize"), texture_.image.width, texture_.image.height);
+	gl.uniform2f(gl.getUniformLocation(progRotate, "outputSize"), gl.viewportWidth, gl.viewportHeight);
+	gl.uniformMatrix4fv(progRotate.matrixLoc, false, modelViewMatrix);
 
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
@@ -695,7 +695,7 @@ function do_render(rotation) {
       if (texture_.image.width == 0 && texture_.image.height == 0)
          return;
 
-      gl.useProgram(prog);
+      gl.useProgram(progRotate);
       gl.bindTexture(gl.TEXTURE_2D, texture_);
 
 	  do_render_regular(rotation);
