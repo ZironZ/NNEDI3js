@@ -1,14 +1,10 @@
 //"use strict";
-// var fbo_scale = 1;
-// var fbo_enabled = false;
 var gl = null;
 var texture_ = null;
 var texture_fbo = null;
 var fbo_ = null;
 var progRotate = null;
-// var prog2 = null;
 var vert_buf = null;
-// var vert_buf_fbo = null;
 
 var native_width = null;
 var native_height = null;
@@ -245,11 +241,6 @@ function load_image(evt) {
                texture_.image = texture_.old_img;
             }
 
-            var output = document.getElementById("image_output");
-            output.innerHTML = "Enabled";
-
-            //var output = document.getElementById("filter_output");
-            //output.innerHTML = "Point";
 			do_render(NO_ROTATE);
          }
          texture_.image.src = e.target.result;
@@ -291,189 +282,7 @@ function parse_xml(text) {
    };
 }
 
-// Hacks to conform to GLES 2.0 :)
-// function transform_vert(vert_) {
-   // var vert = "const mat4 trans_matrix_ = mat4(1.0, 0.0, 0.0, 0.0,\n";
-   // vert += "0.0, 1.0, 0.0, 0.0,\n";
-   // vert += "0.0, 0.0, 1.0, 0.0,\n";
-   // vert += "0.0, 0.0, 0.0, 1.0);\n";
-   // vert += "#define gl_ModelViewProjectionMatrix trans_matrix_\n";
-   // vert += "#define gl_Vertex vec4(rubyVertex, 0.0, 1.0)\n";
-   // vert += "#define gl_MultiTexCoord0 vec4(rubyTexCoord, 0.0, 0.0)\n";
-   // vert += "attribute vec2 rubyVertex;\n";
-   // vert += "attribute vec2 rubyTexCoord;\n";
-   // vert += "varying vec4 rubyTexCoord_[8];\n";
-   // vert += "#define gl_TexCoord rubyTexCoord_\n";
-   // vert += "vec4 ftransform(void) { return vec4(rubyVertex, 0.0, 1.0); }\n";
-   // vert += vert_;
-   // return vert;
-// }
-
-// function transform_frag(frag_) {
-   // var frag = "precision highp float;\n";
-   // frag += "varying vec4 rubyTexCoord_[8];\n";
-   // frag += "#define gl_TexCoord rubyTexCoord_\n";
-   // frag += frag_;
-   // return frag;
-// }
-
-// function compile_xml_shader(vert, frag, index) {
-   // var vert_s = null;
-   // var frag_s = null;
-
-   // var console = document.getElementById("error_console");
-   // console.innerHTML = "Shader compile was successful!\n";
-
-   // if (vert) {
-      // vert_s = gl.createShader(gl.VERTEX_SHADER);
-      // gl.shaderSource(vert_s, transform_vert(vert));
-      // gl.compileShader(vert_s);
-      // if (!gl.getShaderParameter(vert_s, gl.COMPILE_STATUS)) {
-         // alert("Vertex shader failed to compile!");
-         // console.innerHTML = "Vertex errors:\n" + gl.getShaderInfoLog(vert_s);
-         // return;
-      // }
-      // var log = gl.getShaderInfoLog(vert_s);
-      // if (log.length > 0) {
-         // console.innerHTML += "Vertex warnings:\n" + log;
-      // }
-   // } else {
-      // vert_s = getShader("vertex_shader");
-   // }
-
-   // if (frag) {
-      // frag_s = gl.createShader(gl.FRAGMENT_SHADER);
-      // gl.shaderSource(frag_s, transform_frag(frag));
-      // gl.compileShader(frag_s);
-      // if (!gl.getShaderParameter(frag_s, gl.COMPILE_STATUS)) {
-         // alert("Fragment shader failed to compile!");
-         // console.innerHTML = "Fragment errors:\n" + gl.getShaderInfoLog(frag_s);
-         // return;
-      // }
-      // var log = gl.getShaderInfoLog(frag_s);
-      // if (log.length > 0) {
-         // console.innerHTML += "Fragment warnings:\n" + log;
-      // }
-   // } else {
-      // frag_s = getShader("fragment_shader");
-   // }
-
-   // gl.useProgram(null);
-   // if (index === 0) {
-      // gl.deleteProgram(prog);
-   // } else if (index === 1) {
-      // gl.deleteProgram(prog2);
-   // }
-
-   // var program = gl.createProgram();
-   // gl.attachShader(program, vert_s);
-   // gl.attachShader(program, frag_s);
-   // gl.linkProgram(program);
-   // if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      // console.innerHTML = "Linking errors:\n" + gl.getProgramInfoLog(program);
-      // alert("Failed to link program!");
-      // return;
-   // }
-
-   // program.vert = vert_s;
-   // program.frag = frag_s;
-
-   // gl.useProgram(program);
-   // program.vert_attr = gl.getAttribLocation(program, "rubyVertex");
-   // program.tex_attr = gl.getAttribLocation(program, "rubyTexCoord");
-   // gl.enableVertexAttribArray(program.vert_attr);
-   // gl.enableVertexAttribArray(program.tex_attr);
-   // gl.uniform1i(gl.getUniformLocation(program, "rubyTexture"), 0);
-   // gl.vertexAttribPointer(program.tex_attr,  2, gl.FLOAT, false, 4 * 4, 0 * 4);
-   // gl.vertexAttribPointer(program.vert_attr, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
-
-   // if (index === 0) {
-      // prog = program;
-   // } else if (index === 1) {
-      // prog2 = program;
-   // }
-// }
-
-// function compile_rotate_shader(vert, frag, index) {
-   // var vert_s = null;
-   // var frag_s = null;
-
-   // var console = document.getElementById("error_console");
-   // console.innerHTML = "Shader compile was successful!\n";
-
-   // if (vert) {
-      // vert_s = gl.createShader(gl.VERTEX_SHADER);
-      // gl.shaderSource(vert_s, transform_vert(vert));
-      // gl.compileShader(vert_s);
-      // if (!gl.getShaderParameter(vert_s, gl.COMPILE_STATUS)) {
-         // alert("Vertex shader failed to compile!");
-         // console.innerHTML = "Vertex errors:\n" + gl.getShaderInfoLog(vert_s);
-         // return;
-      // }
-      // var log = gl.getShaderInfoLog(vert_s);
-      // if (log.length > 0) {
-         // console.innerHTML += "Vertex warnings:\n" + log;
-      // }
-   // } else {
-      // vert_s = getShader("vertex_shader");
-   // }
-
-   // if (frag) {
-      // frag_s = gl.createShader(gl.FRAGMENT_SHADER);
-      // gl.shaderSource(frag_s, transform_frag(frag));
-      // gl.compileShader(frag_s);
-      // if (!gl.getShaderParameter(frag_s, gl.COMPILE_STATUS)) {
-         // alert("Fragment shader failed to compile!");
-         // console.innerHTML = "Fragment errors:\n" + gl.getShaderInfoLog(frag_s);
-         // return;
-      // }
-      // var log = gl.getShaderInfoLog(frag_s);
-      // if (log.length > 0) {
-         // console.innerHTML += "Fragment warnings:\n" + log;
-      // }
-   // } else {
-      // frag_s = getShader("fragment_shader");
-   // }
-
-   // gl.useProgram(null);
-   // if (index === 0) {
-      // gl.deleteProgram(prog);
-   // } else if (index === 1) {
-      // gl.deleteProgram(prog2);
-   // }
-
-   // var program = gl.createProgram();
-   // gl.attachShader(program, vert_s);
-   // gl.attachShader(program, frag_s);
-   // gl.linkProgram(program);
-   // if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      // console.innerHTML = "Linking errors:\n" + gl.getProgramInfoLog(program);
-      // alert("Failed to link program!");
-      // return;
-   // }
-
-   // program.vert = vert_s;
-   // program.frag = frag_s;
-
-   // gl.useProgram(program);
-   // program.vert_attr = gl.getAttribLocation(program, "rubyVertex");
-   // program.tex_attr = gl.getAttribLocation(program, "rubyTexCoord");
-   // program.u_matrixLoc = gl.getUniformLocation(program, "uMatrix");
-   // gl.enableVertexAttribArray(program.vert_attr);
-   // gl.enableVertexAttribArray(program.tex_attr);
-   // gl.uniform1i(gl.getUniformLocation(program, "rubyTexture"), 0);
-   // gl.vertexAttribPointer(program.tex_attr,  2, gl.FLOAT, false, 4 * 4, 0 * 4);
-   // gl.vertexAttribPointer(program.vert_attr, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
-   
-   // program.modelViewMatrix = mat4.create(); 
-   
-   // if (index === 0) {
-      // prog = program;
-   // } else if (index === 1) {
-      // prog2 = program;
-   // }
-// }
-
+//This function is unreachable code
 function reset_image() {
    texture_.image.width = 0;
    texture_.image.height = 0;
@@ -523,22 +332,7 @@ function initShaders() {
 
 //3rd function in webGLStart()
 function initFramebuffer() {
-   // texture_fbo = gl.createTexture();
-   // fbo_ = gl.createFramebuffer();
-   // gl.bindFramebuffer(gl.FRAMEBUFFER, fbo_);
-   // fbo_.width = 512;
-   // fbo_.height = 512;
-
-   // gl.bindTexture(gl.TEXTURE_2D, texture_fbo);
-   // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, fbo_.width, fbo_.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-   // gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-   // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-   // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-   // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-   // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
    gl.bindTexture(gl.TEXTURE_2D, texture_);
-
-   // gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture_fbo, 0);
    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 
@@ -579,7 +373,6 @@ function rotate(amount, width, height) {
     var modelView = mat4.create();
 
     mat4.identity(modelView); //Set to identity
-    //mat4.translate(modelView, modelView, [width/2*-1, height/2*-1, 0]); //Translate to pictures center
     mat4.rotateZ(modelView, modelView, amount); //Rotate around the Z axis
 	
 	return modelView;
@@ -622,73 +415,6 @@ function do_render_regular(rotation) {
 
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
-
-// function do_render_fbo() {
-   // var out_width = texture_.image.width * fbo_scale;
-   // var out_height = texture_.image.width * fbo_scale;
-
-   // if ((out_width != fbo_.width) || (out_height != fbo_.height)) {
-      // gl.bindTexture(gl.TEXTURE_2D, texture_fbo);
-      // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, out_width, out_height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-      // fbo_.width = out_width;
-      // fbo_.height = out_height;
-   // }
-
-   // gl.bindBuffer(gl.ARRAY_BUFFER, vert_buf_fbo);
-   // prog.vert_attr = gl.getAttribLocation(prog, "rubyVertex");
-   // prog.tex_attr = gl.getAttribLocation(prog, "rubyTexCoord");
-   // gl.enableVertexAttribArray(prog.vert_attr);
-   // gl.enableVertexAttribArray(prog.tex_attr);
-   // gl.vertexAttribPointer(prog.tex_attr,  2, gl.FLOAT, false, 4 * 4, 0 * 4);
-   // gl.vertexAttribPointer(prog.vert_attr, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
-
-   // gl.bindTexture(gl.TEXTURE_2D, texture_);
-   // gl.bindFramebuffer(gl.FRAMEBUFFER, fbo_);
-   // gl.viewport(0, 0, fbo_.width, fbo_.height);
-   // gl.clear(gl.COLOR_BUFFER_BIT);
-
-   // gl.uniform2f(gl.getUniformLocation(prog, "rubyTextureSize"),
-         // texture_.image.width, texture_.image.height);
-   // gl.uniform2f(gl.getUniformLocation(prog, "rubyInputSize"),
-         // texture_.image.width, texture_.image.height);
-   // gl.uniform2f(gl.getUniformLocation(prog, "rubyOutputSize"),
-         // fbo_.width, fbo_.height);
-
-   // gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-   // gl.useProgram(prog2);
-
-   // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-   // gl.bindTexture(gl.TEXTURE_2D, texture_fbo);
-
-   // var canvas = document.getElementById("test_canvas");
-   // gl.viewportWidth = canvas.width;
-   // gl.viewportHeight = canvas.height;
-   // prog2.modelViewMatrix = rotate(Math.PI/2, out_width, out_height);
-   // gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-   // gl.clear(gl.COLOR_BUFFER_BIT);
-
-   // gl.bindBuffer(gl.ARRAY_BUFFER, vert_buf);
-
-   // prog2.vert_attr = gl.getAttribLocation(prog2, "rubyVertex");
-   // prog2.tex_attr = gl.getAttribLocation(prog2, "rubyTexCoord");
-   // prog2.u_matrixLoc = gl.getUniformLocation(prog2, "uMatrix");
-   // gl.enableVertexAttribArray(prog2.vert_attr);
-   // gl.enableVertexAttribArray(prog2.tex_attr);
-   // gl.vertexAttribPointer(prog2.tex_attr,  2, gl.FLOAT, false, 4 * 4, 0 * 4);
-   // gl.vertexAttribPointer(prog2.vert_attr, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
-   // gl.uniform1i(gl.getUniformLocation(prog2, "rubyTexture"), 0);
-
-   // gl.uniform2f(gl.getUniformLocation(prog2, "rubyTextureSize"),
-         // fbo_.width, fbo_.height);
-   // gl.uniform2f(gl.getUniformLocation(prog2, "rubyInputSize"),
-         // fbo_.width, fbo_.height);
-   // gl.uniform2f(gl.getUniformLocation(prog2, "rubyOutputSize"),
-         // gl.viewportWidth, gl.viewportHeight);
-   // gl.uniformMatrix4fv(prog2.u_matrixLoc, false, prog2.modelViewMatrix);
-		 
-   // gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-// }
 
 function do_render(rotation) {
    try {
@@ -801,14 +527,6 @@ function setup_weights_and_pscrn() {
 			dims1tsize += NNS_TABLE[j]*2*(XDIA_TABLE[i]*YDIA_TABLE[i]+1)*2;
 		}
 	}
-	
-	/*
-	$("#BinaryVals").append(dims0+"</br>");
-	$("#BinaryVals").append(dims0new+"</br>");
-	$("#BinaryVals").append(dims1+"</br>");
-	$("#BinaryVals").append(dims1offset+"</br>");
-	$("#BinaryVals").append(dims1tsize+"</br>");
-	*/
 	
 	var weights0 = new Float32Array(Math.max(dims0,dims0new));
 	//Maybe these should be explicitly declared separate typed arrays...
@@ -931,30 +649,9 @@ function setup_weights_and_pscrn() {
 			wf1[(j>>2)*8+(j&3)+4] = bdataT[boff+j];
 		}
 		
-		/*
-		//Shuffle weight order for asm
-		if (opt > 1) {
-			short *rs = (short*)malloc(nns*2*asize*sizeof(short));
-			memcpy(rs,ws,nns*2*asize*sizeof(short));
-			for (int j=0; j<nns*2; ++j) {
-				for (int k=0; k<asize; ++k) {
-					ws[(j>>2)*asize*4+(k>>3)*32+(j&3)*8+(k&7)] = rs[j*asize+k];
-				}
-			}
-			free(rs);
-		}
-		*/
 		mean1 = null;
 	}
-	// for (i = 0; i < 2; ++i) {
-		// for (j = 0; j < dims1; ++j) {
-			// $("#BinaryVals").append(j+". "+weights1[i][j]+"</br>");
-		// }
-	// }
-	// $("#BinaryVals").append("</p>");
 
-
-	
 	var psObj= {};
 	psObj['weights0'] = weights0;
 	psObj['weights1'] = weights1;
@@ -1033,38 +730,14 @@ function setup_psinfo_object(psInfo, srcUnpad, width, height) {
 function upscale_sub(psInfo, srcUnpad, width, height) {
 	setup_psinfo_object(psInfo, srcUnpad, width, height);
 	
-	/*
-	var i = 0;
-	var j = 0;
-	var k = 0;	
-	var srcUnpadPitch = width*4;
-	var dstHeight = psInfo['dst_height'];
-	var dstWidth = psInfo['dst_width'];
-	var dstPitch = psInfo['dst_pitch'];
-	var dstR = psInfo['dst'][0];
-	var dstG = psInfo['dst'][1];
-	var dstB = psInfo['dst'][2];
-	var type = psInfo['type'];
-	*/
-	
 	reorganize_pixels(psInfo, srcUnpad, width, height);
-	
-	//Maybe fill the dst object with garbage or empty values?
-	//PVideoFrame dst = env->NewVideoFrame(vi);
-	//const int plane[3] = { PLANAR_Y, PLANAR_U, PLANAR_V };
 
 	evalfunc_0(psInfo);
-	//ResetEvent(pssInfo[i]->jobFinished);
-	//SetEvent(pssInfo[i]->nextJob);
-	//WaitForSingleObject(pssInfo[i]->jobFinished,INFINITE);
 	
 	calc_start_end2(psInfo);
 
 	evalfunc_1(psInfo);
-	//ResetEvent(pssInfo[i]->jobFinished);
-	//SetEvent(pssInfo[i]->nextJob);
-	//WaitForSingleObject(pssInfo[i]->jobFinished,INFINITE);
-	
+
 	rgbaImgOut = output_rgba_array(psInfo);
 	
 	return rgbaImgOut;
@@ -1490,16 +1163,12 @@ function output_rgba_array(psInfo) {
 	var dstG = psInfo['dst'][1];
 	var dstB = psInfo['dst'][0];
 	
-	//var rgbaImgOut = new Image(dstWidth, dstHeight);
-	//var rgbaData = rgbaImgOut.data;
-	
 	//I wonder when this will be garbage collected?
 	var tempCanvas = document.createElement('canvas');
 	tempCanvas.height = dstWidth ;
 	tempCanvas.width = dstHeight;
 	var rgbaImg = tempCanvas.getContext('2d').getImageData(0, 0, dstWidth, dstHeight);
 	var rgbaData = rgbaImg.data;
-	//var rgbaOut = new Uint8Array(dstHeight*dstWidth*4);
 	
 	var offset = 0;
 	var rgbaOffset = 0;	
@@ -1529,8 +1198,6 @@ function fix_center_shift() {
 	//we take the shifted image and upscale it to 1024x1024
 	//then we shift it one pixel right and 1 pixel down
 	//then we use the same algorithm to downscale it back to 512x512
-	
-	//although I have no idea if this is correct until I actually get NNEDI3 working
 }
 
 //Output current image to a canvas
@@ -1563,31 +1230,10 @@ function do_Upscale() {
 	set_native_image();
 	
 	for (i = 0; i < ct; ++i) {	
-		//var curScale = Math.pow(2, i);
+		var pixDataA = new Uint8Array((texture_.image.width) * (texture_.image.height) * 4);
+		gl.readPixels(0, 0, (texture_.image.width), (texture_.image.height), gl.RGBA, gl.UNSIGNED_BYTE, pixDataA);
 		
-		//if (i === 0) {
-			var pixDataA = new Uint8Array((texture_.image.width) * (texture_.image.height) * 4);
-			gl.readPixels(0, 0, (texture_.image.width), (texture_.image.height), gl.RGBA, gl.UNSIGNED_BYTE, pixDataA);
-		//} else {
-		//	pixDataA = pixDataC;
-		//}
-		
-		/*$("#BinaryVals").append("<p>");
-		for (k = 0; k < pixDataA.length; k += 4) {
-			$("#BinaryVals").append(k/4+". "+pixDataA[k]+", ");
-			$("#BinaryVals").append(pixDataA[k+1]+", ");
-			$("#BinaryVals").append(pixDataA[k+2]+"</br>");
-			//$("#BinaryVals").append(pixDataA[k+2]+", ");
-			//$("#BinaryVals").append(pixDataA[k+3]+"</br>");
-		}
-		$("#BinaryVals").append("</p>");*/
 		halfUpscaled = upscale_sub(psInfo, pixDataA, texture_.image.width, texture_.image.height);
-		//upscale_sub(dsp, p1, p1, w1, h1, s1/2, s1);
-		
-		//Upload this array to the GPU as a texture
-		// var canvas = document.getElementById("test_canvas");
-		// canvas.width = texture_.image.width;
-		// canvas.height = texture_.image.height * scale;
 
 		texture_.old_img = texture_.image;
 		texture_.image = halfUpscaled;
@@ -1595,64 +1241,29 @@ function do_Upscale() {
 		var canvas = document.getElementById("test_canvas");
 		canvas.width = texture_.image.width;
 		canvas.height = texture_.image.height;
-
-		/*
-		var otherCanvas = document.getElementById("other_canvas");
-		otherCanvas.width = canvas.width
-		otherCanvas.height = canvas.height;
-		otherCanvas.getContext('2d').putImageData(halfUpscaled, 0, 0);
-		*/
 		
 		do_render(ROTATE_RIGHT);
 		
 		var pixDataB = new Uint8Array((texture_.image.width) * (texture_.image.height) * 4);
 		gl.readPixels(0, 0, (texture_.image.height), (texture_.image.width), gl.RGBA, gl.UNSIGNED_BYTE, pixDataB);
-		/*$("#BinaryVals").append("<p>");
-		for (k = 0; k < pixDataB.length; k += 4) {
-			$("#BinaryVals").append(k/4+". "+pixDataB[k]+", ");
-			$("#BinaryVals").append(pixDataB[k+1]+", ");
-			$("#BinaryVals").append(pixDataB[k+2]+"</br>");
-			//$("#BinaryVals").append(pixDataB[k+2]+", ");
-			//$("#BinaryVals").append(pixDataB[k+3]+"</br>");
-		}
-		$("#BinaryVals").append("</p>");*/
-		
+
 		fullUpscaled = upscale_sub(psInfo, pixDataB, texture_.image.height, texture_.image.width);
 
 		texture_.old_img = texture_.image;
 		texture_.image = fullUpscaled;
 		set_image(texture_.image);
-		//var canvas = document.getElementById("test_canvas");
 		canvas.width = texture_.image.width;
 		canvas.height = texture_.image.height;
-		
-		/*
-		var otherCanvas = document.getElementById("other_canvas");
-		otherCanvas.width = canvas.width
-		otherCanvas.height = canvas.height;
-		otherCanvas.getContext('2d').putImageData(fullUpscaled, 0, 0);
-		*/
-		
-		//upscale_sub(dsp, dst, p2, w2, h2, dstride, s2);
-		
-		//Change the texture being drawn to the new NNEDI3 scaled one
-		//change_canvas_scale will flip these
-		// canvas.width = texture_.image.height * scale;
-		// canvas.height = texture_.image.width; * scale;
-		//change_canvas_scale(Math.pow(2, i+1));
+
 		do_render(ROTATE_LEFT);
 		
-		//var pixDataC = new Uint8Array((texture_.image.width) * (texture_.image.height) * 4);
 		var finalImg = new Image();
 		finalImg.src = canvas.toDataURL("image/png");
-		//var finalImg = canvas.getImageData(0, 0, canvas.width, canvas.height);
 		
 		texture_.old_img = texture_.image;
 		texture_.image = finalImg;
 		set_image(texture_.image);
 		do_render(NO_ROTATE);
-		//canvas.width = texture_.image.width;
-		//canvas.height = texture_.image.height;
 	}
 	
 	//fix_center_shift();

@@ -61,6 +61,7 @@
             <input type="button" onclick="set_resize(2);" value="2x"/>
             <input type="button" onclick="set_resize(4);" value="4x"/>
 			<input type="button" onclick="set_resize(8);" value="8x"/>
+			<input type="button" onclick="set_resize(16);" value="16x"/>
             <output class="output" id="total_scale_output">1x</output></p>
 
             <p><span class="aligned">Number of Neurons:</span>
@@ -93,9 +94,7 @@
 
             <p><span class="aligned">Image:</span>
             <input type="file" id="image_file" name="files[]"/>
-            <input type="button" onclick="reset_image();" value="Reset"/>
-            <output class="output" id="image_output">None</output></p>
-
+			
 			<p>
 			<input type="button" onclick="run_NNEDI3();" value="Perform Resize"/>
 			</p>
@@ -140,140 +139,7 @@
          gl_FragColor = texture2D(imageTexture, texCoord_[0].xy);
       }
    </script>
-  
-   <!--These add the mirrored padding to each color channel-->
-   <script id="Pixel_Padding_vertex_shader" type="x-shader/x-vertex">
-      attribute vec2 vertexCoord;
-      attribute vec2 texCoord;
-      varying vec4 texCoord_[8];
-	  
-	  uniform mat4 uMatrix;
-
-      void main()
-      {
-         texCoord_[0] = vec4(texCoord, 0.0, 1.0);
-		 gl_Position = vec4((uMatrix * vec4(vertexCoord, 0.0, 1.0)).xy, 0, 1);
-      }
-   </script>
-
-   <script id="Pixel_Padding_fragment_shader" type="x-shader/x-fragment">
-      #ifdef GL_ES
-      precision highp float;
-      #endif
-
-      uniform sampler2D imageTexture;
-      varying vec4 texCoord_[8];
-
-      void main()
-      {
-         gl_FragColor = texture2D(imageTexture, texCoord_[0].xy);
-      }
-   </script>
-  
-   <!--These remove the mirrored padding on each color channel-->
-   <script id="Remove_Pixel_Padding_vertex_shader" type="x-shader/x-vertex">
-      attribute vec2 vertexCoord;
-      attribute vec2 texCoord;
-      varying vec4 texCoord_[8];
-	  
-	  uniform mat4 uMatrix;
-
-      void main()
-      {
-         texCoord_[0] = vec4(texCoord, 0.0, 1.0);
-		 gl_Position = vec4((uMatrix * vec4(vertexCoord, 0.0, 1.0)).xy, 0, 1);
-      }
-   </script>
-
-   <script id="Remove_Pixel_Padding_fragment_shader" type="x-shader/x-fragment">
-      #ifdef GL_ES
-      precision highp float;
-      #endif
-
-      uniform sampler2D imageTexture;
-      varying vec4 texCoord_[8];
-
-      void main()
-      {
-         gl_FragColor = texture2D(imageTexture, texCoord_[0].xy);
-      }
-   </script>
    
-   <!--These two do nothing at the moment but will eventually do the first layer-->
-   <script id="first_layer_vertex_shader" type="x-shader/x-vertex">
-		attribute vec2 vertexCoord;
-		attribute vec2 texCoord;
-		varying vec4 texCoord_[8];
-
-		uniform mat4 uMatrix;
-
-		void main() {
-			texCoord_[0] = vec4(texCoord, 0.0, 1.0);
-			gl_Position = vec4(vertexCoord, 0.0, 1.0);
-		}
-   </script>
-
-   <script id="first_layer_fragment_shader" type="x-shader/x-fragment">
-		#ifdef GL_ES
-		precision highp float;
-		#endif
-
-		uniform sampler2D imageTexture;
-		varying vec4 texCoord_[8];
-
-		void main() {
-			gl_FragColor = texture2D(imageTexture, texCoord_[0].xy);
-		}
-   </script>
-   
-   <!--These two do nothing at the moment but will eventually do the second layer-->
-   <script id="second_layer_vertex_shader" type="x-shader/x-vertex">
-		attribute vec2 vertexCoord;
-		attribute vec2 texCoord;
-		varying vec4 texCoord_[8];
-
-		void main() {
-			texCoord_[0] = vec4(texCoord, 0.0, 1.0);
-			gl_Position = vec4(vertexCoord, 0.0, 1.0);
-		}
-   </script>
-
-   <script id="second_layer_fragment_shader" type="x-shader/x-fragment">
-		#ifdef GL_ES
-		precision highp float;
-		#endif
-
-		uniform
-		uniform sampler2D imageTexture;
-		varying vec4 texCoord_[8];
-
-		float mstd[4];
-		int y, x;
-		
-		void main() {
-			for (y = 0; y < ydia; ++y) {
-				int srcOffsetT = srcOffset+y*stride*2;
-				for (x = 0; x < xdia; ++x, ++inputOffset) {
-					sum += src[srcOffsetT+x];
-					sumsq += src[srcOffsetT+x]*src[srcOffsetT+x];
-					input[inputOffset] = src[srcOffsetT+x];
-				}
-			}
-			
-			var scale = 1.0/(xdia*ydia);
-			mstd[0] = sum*scale;
-			mstd[1] = sumsq*scale-mstd[0]*mstd[0];
-			mstd[3] = 0.0;
-			
-			if (mstd[1] <= Number.MIN_VALUE) {
-				mstd[1] = mstd[2] = 0.0;
-			} else {
-				mstd[1] = Math.sqrt(mstd[1]);
-				mstd[2] = 1.0/mstd[1];
-			}
-			gl_FragColor = texture2D(imageTexture, texCoord_[0].xy);
-		}
-   </script>
    <script type="text/javascript" src="scaling/jquery-2.0.3.min.js"></script>
    <script type="text/javascript" src="scaling/gl-matrix.js"></script>
    <script type="text/javascript" src="scaling/resizer.js"></script>
