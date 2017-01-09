@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
    <meta charset="utf-8">
    <head>
@@ -22,7 +22,7 @@
             color: black;
          }
 
-         #test_canvas {
+         #nnedi3_canvas {
             background: #000000;
          }
 
@@ -49,7 +49,7 @@
       </div>
 
       <div id="text">
-	     <p>This HTML5/Webgl application scales images using tritical's NNEDI3 algorithm.</p>
+	     <p>This web application scales images using tritical's NNEDI3 algorithm.</p>
          <p>It is extremely slow because most of the calculations are performed on the CPU.</p>
       </div>
 
@@ -102,8 +102,10 @@
 
          <hr/>
          <h3>Output</h3>
-         <canvas id="test_canvas" style="border: none" width="256" height="224"></canvas><br/>
-         <p style="font-size: 75%">Note: In Firefox you can save the final result of the canvas as an image. Otherwise click the button below.</p>
+          <div id="Loading" style="display: none">
+              <p id="LoadingText">Performing NNEDI3...</p>
+          </div>
+         <canvas id="nnedi3_canvas" style="border: none" width="256" height="224"></canvas><br/>
 		 <p>
 		 <input type="button" onclick="save_image();" value="Save Image"/>
 		 </p>
@@ -111,7 +113,6 @@
       </div>
    </body>
 
-   <!--These two do rotation-->
    <script id="Rotation_vertex_shader" type="x-shader/x-vertex">
       attribute vec2 vertexCoord;
       attribute vec2 texCoord;
@@ -127,9 +128,7 @@
    </script>
 
    <script id="Rotation_fragment_shader" type="x-shader/x-fragment">
-      #ifdef GL_ES
       precision highp float;
-      #endif
 
       uniform sampler2D imageTexture;
       varying vec4 texCoord_[8];
