@@ -25,6 +25,6 @@ This generates different mirroring artifacts than the AviSynth versions of NNEDI
 ###TODO (Maybe)
 
 - Use WebGL to do the scaling instead of performing it on the CPU. 
-  - There is a good implementations of NNEDI3 in OpenGL that was created for MPV. It would likely not be that hard to get it working in WebGL 2.
+  - There is a good implementation of NNEDI3 in OpenGL that was created for MPV. It would likely not be too hard to get it working in WebGL 2.
 - Correct for the center shift introduced by the NNEDI3 algorithm.
 - Offer an option to upload a video and see it scaled on-the-fly.
