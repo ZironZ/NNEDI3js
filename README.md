@@ -1,6 +1,6 @@
 #NNEDI3js
 
-This is an implementation of the tritical's NNEDI3 algorithm in Javascript. NNEDI3 is a neural network based scaling algorithm that can produce high quality power of two image resizes. You can find tritical's original AviSynth based implementation [here](http://web.missouri.edu/~kes25c/).
+This is an implementation of the tritical's NNEDI3 algorithm in Javascript. NNEDI3 is a neural network based scaling algorithm that can produce high quality power of two image resizes. You can find tritical's original AviSynth based implementation [here](http://web.archive.org/web/20121019082153/http://bengal.missouri.edu/~kes25c/).
 
 The port was done by hand and not using something like Emscripten. At the moment this is only useful as a slow, high quality image resizer.
 
@@ -25,7 +25,6 @@ This generates different mirroring artifacts than the AviSynth versions of NNEDI
 ###TODO (Maybe)
 
 - Use WebGL to do the scaling instead of performing it on the CPU. 
-  - I actually have this working for a single neuron, but getting it to fully work involves writing to floating point FBOs, which is flaky on modern browsers.
-  - I am still not sure if it is worth implementing the prescreener in WebGL. The prescreener often scales over 90% of the pixels in an image. However, the if statements needed in the main neural network shader could make it a wash speed-wise.
+  - There is a good implementations of NNEDI3 in OpenGL that was created for MPV. It would likely not be that hard to get it working in WebGL 2.
 - Correct for the center shift introduced by the NNEDI3 algorithm.
 - Offer an option to upload a video and see it scaled on-the-fly.
