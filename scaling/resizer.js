@@ -166,11 +166,10 @@ function getShader(id) {
     return shader;
 }
 
-function set_image(img) {
+function set_image(img, flip) {
     gl.bindTexture(gl.TEXTURE_2D, texture_);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flip);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
@@ -203,7 +202,7 @@ function load_image(evt) {
                        native_width = texture_.image.width;
                        native_height = texture_.image.height;
                        native_Img = texture_.image;
-                       set_image(texture_.image);
+                       set_image(texture_.image, false);
                        change_canvas_scale(1)
                    } catch (e) {
                        texture_.image = texture_.old_img;
@@ -226,49 +225,10 @@ function load_image(evt) {
     reader.readAsDataURL(file);
 }
 
-function parse_xml(text) {
-    try {
-        var vert = null;
-        var frag = null;
-
-        var parser = new DOMParser();
-        var xmldoc = parser.parseFromString(text, "text/xml");
-
-        var elems;
-        elems = xmldoc.getElementsByTagName("vertex");
-        if (elems.length > 0) {
-            vert = elems[0].childNodes[0].nodeValue;
-        }
-        elems = xmldoc.getElementsByTagName("fragment");
-        if (elems.length > 0) {
-            frag = elems[0].childNodes[0].nodeValue;
-        }
-
-    } catch (e) {
-        alert(e);
-    }
-
-    return {
-        vert: vert,
-        frag: frag
-    };
-}
-
-//This function is unreachable code
-function reset_image() {
-    texture_.image.width = 0;
-    texture_.image.height = 0;
-    set_resize(1);
-    change_canvas_scale(1);
-    do_render(NO_ROTATE);
-    var output = document.getElementById("image_output");
-    output.innerHTML = "None";
-}
-
 function set_native_image() {
     texture_.old_img = texture_.image;
     texture_.image = native_Img;
-    set_image(texture_.image);
+    set_image(texture_.image, false);
     change_canvas_scale(1);
     do_render(NO_ROTATE);
 }
@@ -306,19 +266,6 @@ function initFramebuffer() {
 }
 
 function initBuffers() {
-    // vert_buf_fbo = gl.createBuffer();
-    // gl.bindBuffer(gl.ARRAY_BUFFER, vert_buf_fbo);
-
-    // var fbo_coords = [ // Non-flipped.
-    // TEX      // VERT
-    // 0.0, 1.0,   -1.0,  1.0,
-    // 1.0, 1.0,    1.0,  1.0,
-    // 0.0, 0.0,   -1.0, -1.0,
-    // 1.0, 0.0,    1.0, -1.0,
-    // ];
-
-    // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(fbo_coords), gl.STATIC_DRAW);
-
     vert_buf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vert_buf);
 
@@ -694,7 +641,7 @@ function upscale_sub(psInfo, srcUnpad, width, height) {
 
     evalfunc_1(psInfo);
 
-    rgbaImgOut = output_rgba_array(psInfo);
+    var rgbaImgOut = output_rgba_array(psInfo);
 
     return rgbaImgOut;
 }
@@ -1136,7 +1083,6 @@ function fix_center_shift() {
 }
 
 //Output current image to a canvas
-//For each main loop iteration
 //  Extract the pixels from the image
 //  Upscale the pixels by using NNEDI3
 //  Put them in an array sized width * (height * 2)
@@ -1146,6 +1092,60 @@ function fix_center_shift() {
 //  Put them in an array sized (width * 2) * (height * 2)
 //  Upload this array to the GPU as a texture
 //  Rotate this texture to the left 90 degrees
+//  Repeat the process until we are at the desired scale
+function upscale2x(psInfo, ct) {
+    var pixDataA = new Uint8Array((texture_.image.width) * (texture_.image.height) * 4);
+    gl.readPixels(0, 0, (texture_.image.width), (texture_.image.height), gl.RGBA, gl.UNSIGNED_BYTE, pixDataA);
+
+    halfUpscaled = upscale_sub(psInfo, pixDataA, texture_.image.width, texture_.image.height);
+
+    texture_.old_img = texture_.image;
+    texture_.image = halfUpscaled;
+    set_image(texture_.image, false);
+    var canvas = document.getElementById("nnedi3_canvas");
+    canvas.width = texture_.image.width;
+    canvas.height = texture_.image.height;
+
+    do_render(ROTATE_RIGHT);
+
+    var pixDataB = new Uint8Array((texture_.image.width) * (texture_.image.height) * 4);
+    gl.readPixels(0, 0, (texture_.image.height), (texture_.image.width), gl.RGBA, gl.UNSIGNED_BYTE, pixDataB);
+
+    fullUpscaled = upscale_sub(psInfo, pixDataB, texture_.image.height, texture_.image.width);
+
+    texture_.old_img = texture_.image;
+    texture_.image = fullUpscaled;
+    set_image(texture_.image, false);
+    canvas.width = texture_.image.width;
+    canvas.height = texture_.image.height;
+
+    do_render(ROTATE_LEFT);
+
+    var tempCanvas = document.createElement('canvas');
+    tempCanvas.height = canvas.height;
+    tempCanvas.width = canvas.width;
+    var finalImg = new Image();
+    finalImg.src = canvas.toDataURL("image/png");
+    var imageData;
+
+    finalImg.onload = function () {
+        tempCanvas.getContext("2d").drawImage(finalImg, 0, 0);
+        imageData = tempCanvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height);
+
+        texture_.old_img = texture_.image;
+        texture_.image = imageData;
+        set_image(texture_.image);
+        do_render(NO_ROTATE);
+
+        //fix_center_shift();
+
+        ct--;
+        if (ct > 0) {
+            upscale2x(psInfo, ct);
+        }
+    };
+}
+
 //  Write the new image out to the canvas
 function do_Upscale() {
     var rf = 1;
@@ -1164,44 +1164,7 @@ function do_Upscale() {
 
     set_native_image();
 
-    for (i = 0; i < ct; ++i) {
-        var pixDataA = new Uint8Array((texture_.image.width) * (texture_.image.height) * 4);
-        gl.readPixels(0, 0, (texture_.image.width), (texture_.image.height), gl.RGBA, gl.UNSIGNED_BYTE, pixDataA);
-
-        halfUpscaled = upscale_sub(psInfo, pixDataA, texture_.image.width, texture_.image.height);
-
-        texture_.old_img = texture_.image;
-        texture_.image = halfUpscaled;
-        set_image(texture_.image);
-        var canvas = document.getElementById("nnedi3_canvas");
-        canvas.width = texture_.image.width;
-        canvas.height = texture_.image.height;
-
-        do_render(ROTATE_RIGHT);
-
-        var pixDataB = new Uint8Array((texture_.image.width) * (texture_.image.height) * 4);
-        gl.readPixels(0, 0, (texture_.image.height), (texture_.image.width), gl.RGBA, gl.UNSIGNED_BYTE, pixDataB);
-
-        fullUpscaled = upscale_sub(psInfo, pixDataB, texture_.image.height, texture_.image.width);
-
-        texture_.old_img = texture_.image;
-        texture_.image = fullUpscaled;
-        set_image(texture_.image);
-        canvas.width = texture_.image.width;
-        canvas.height = texture_.image.height;
-
-        do_render(ROTATE_LEFT);
-
-        var finalImg = new Image();
-        finalImg.src = canvas.toDataURL("image/png");
-
-        texture_.old_img = texture_.image;
-        texture_.image = finalImg;
-        set_image(texture_.image);
-        do_render(NO_ROTATE);
-    }
-
-    //fix_center_shift();
+    upscale2x(psInfo, ct);
 }
 
 function grab_binary() {
@@ -1219,7 +1182,7 @@ function grab_binary() {
                 })(), 50);
             }
         })(), 50);
-    }
+    };
 
     xhr.send();
 }
