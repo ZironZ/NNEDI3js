@@ -1142,6 +1142,8 @@ function upscale2x(psInfo, ct) {
         ct--;
         if (ct > 0) {
             upscale2x(psInfo, ct);
+        } else {
+            $("#Loading").hide();
         }
     };
 }
@@ -1177,9 +1179,6 @@ function grab_binary() {
         setTimeout((function() {
             return function() {
                 do_Upscale();
-                setTimeout((function() {
-                    return function() { $("#Loading").hide(); }
-                })(), 50);
             }
         })(), 50);
     };
@@ -1212,9 +1211,6 @@ function run_NNEDI3() {
             setTimeout((function() {
                 return function() {
                     do_Upscale();
-                    setTimeout((function() {
-                        return function() { $("#Loading").hide(); }
-                    })(), 50);
                 }
             })(), 50);
         }
