@@ -4,8 +4,6 @@ This is an implementation of the tritical's NNEDI3 algorithm in Javascript. NNED
 
 The port was done by hand and not using something like Emscripten. At the moment this is only useful as a slow, high quality image resizer.
 
-You can test it out [here](http://semapho.re/nnedi3/). 
-
 Do note that it may take a while to perform the first resize since it needs to download a 13MB binary file of weights before the scaling can begin.
 
 ### User Configurable Settings
